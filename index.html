@@ -18,6 +18,7 @@
                 <div class="actions">
                     <button id="addBookBtn"><i class="fas fa-plus"></i> 添加书籍</button>
                     <button id="toggleDarkMode"><i class="fas fa-moon"></i></button>
+                    <button id="themeSelector" title="选择主题"><i class="fas fa-palette"></i></button>
                 </div>
             </div>
             <div id="bookList" class="book-grid"></div>
@@ -31,6 +32,7 @@
                     <button id="addBookmark" title="添加书签"><i class="fas fa-bookmark"></i></button>
                     <button id="shareBook" title="分享"><i class="fas fa-share-alt"></i></button>
                     <button id="toggleReaderDarkMode"><i class="fas fa-moon"></i></button>
+                    <button id="readerThemeSelector" title="选择主题"><i class="fas fa-palette"></i></button>
                 </div>
             </div>
             
@@ -51,12 +53,51 @@
                         <span id="chapterTitle">第一章</span>
                         <button id="nextChapter">下一章 <i class="fas fa-chevron-right"></i></button>
                     </div>
+                    
+                    <div class="chapter-stats">
+                        <div id="wordCount">字数: 0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 主题选择器弹窗 -->
+    <div id="themeModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>选择主题</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="theme-grid">
+                    <div class="theme-option" data-theme="default">
+                        <div class="theme-preview default-theme"></div>
+                        <span>默认</span>
+                    </div>
+                    <div class="theme-option" data-theme="sepia">
+                        <div class="theme-preview sepia-theme"></div>
+                        <span>羊皮纸</span>
+                    </div>
+                    <div class="theme-option" data-theme="night">
+                        <div class="theme-preview night-theme"></div>
+                        <span>夜间</span>
+                    </div>
+                    <div class="theme-option" data-theme="forest">
+                        <div class="theme-preview forest-theme"></div>
+                        <span>森林</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
     
     <div id="toastMessage" class="toast hidden"></div>
+    
+    <footer class="app-footer">
+        <p>&copy; <span id="currentYear"></span> NovelWriter | Copyright Lanbin Leo | <a href="https://github.com/lanbinleo" target="_blank">github: lanbinleo</a></p>
+        <p>最后更新: <span id="lastUpdateTime"></span></p>
+    </footer>
     
     <script src="app.js"></script>
 </body>

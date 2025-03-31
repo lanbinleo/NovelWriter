@@ -635,10 +635,18 @@ function updatePreview() {
 
 // Update word count
 function updateWordCount() {
-  const content = state.editor.getValue();
-  const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
-  elements.wordCount.textContent = `字数: ${wordCount}`;
-}
+    const content = state.editor.getValue();
+    
+    // Count words including Chinese characters (treating each Chinese character as a word)
+    // For non-Chinese text, count traditional space-separated words
+    const chineseCharsCount = (content.match(/[\u4e00-\u9fa5]/g) || []).length;
+    const nonChineseWordsCount = content.replace(/[\u4e00-\u9fa5]/g, '').trim() ? 
+                                content.replace(/[\u4e00-\u9fa5]/g, '').trim().split(/\s+/).length : 0;
+    
+    const wordCount = chineseCharsCount + nonChineseWordsCount;
+    elements.wordCount.textContent = `字数: ${wordCount}`;
+  }
+  
 
 // Toggle dark mode
 function toggleDarkMode() {

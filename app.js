@@ -1,3 +1,5 @@
+BASEURL = "https://raw.githubusercontent.com/lanbinleo/NovelWriter/refs/heads/main/";
+
 // Main app state
 const state = {
   bookList: [],
@@ -6,7 +8,9 @@ const state = {
   lastReadPositions: JSON.parse(localStorage.getItem('lastReadPositions') || '{}'),
   bookmarks: JSON.parse(localStorage.getItem('bookmarks') || '{}'),
   underlines: JSON.parse(localStorage.getItem('underlines') || '{}'),
-  darkMode: localStorage.getItem('darkMode') === 'true'
+  darkMode: localStorage.getItem('darkMode') === 'true',
+  theme: localStorage.getItem('theme') || 'default'
+
 };
 
 // DOM Elements
@@ -20,6 +24,7 @@ const elements = {
   tableOfContents: document.getElementById('tableOfContents'),
   bookmarksList: document.getElementById('bookmarksList'),
   toastMessage: document.getElementById('toastMessage'),
+  wordCount: document.getElementById('wordCount'), // Add this line
   
   // Buttons
   backToShelf: document.getElementById('backToShelf'),
@@ -29,11 +34,68 @@ const elements = {
   nextChapter: document.getElementById('nextChapter'),
   addBookmark: document.getElementById('addBookmark'),
   shareBook: document.getElementById('shareBook'),
-  addBookBtn: document.getElementById('addBookBtn')
+  addBookBtn: document.getElementById('addBookBtn'),
+
+  themeSelector: document.getElementById('themeSelector'),
+  readerThemeSelector: document.getElementById('readerThemeSelector'),
+  themeModal: document.getElementById('themeModal'),
+  themeOptions: document.querySelectorAll('.theme-option'),
+  closeModalBtn: document.querySelector('.close-btn')
+
 };
+
+// 添加主题选择和应用函数
+function applyTheme(themeName) {
+    // 移除所有现有主题类
+    document.body.classList.remove('default-theme', 'sepia-theme', 'night-theme', 'forest-theme');
+    
+    // 添加新主题类
+    document.body.classList.add(`${themeName}-theme`);
+    
+    // 更新状态并保存到本地存储
+    state.theme = themeName;
+    localStorage.setItem('theme', themeName);
+    
+    // 如果选择了夜间主题，也启用暗模式
+    if (themeName === 'night') {
+      state.darkMode = true;
+      document.body.classList.add('dark-mode');
+      localStorage.setItem('darkMode', 'true');
+    } else if (state.darkMode) {
+      // 如果从夜间主题切换到其他主题，关闭暗模式
+      state.darkMode = false;
+      document.body.classList.remove('dark-mode');
+      localStorage.setItem('darkMode', 'false');
+    }
+    
+    showToast(`已应用${getThemeDisplayName(themeName)}主题`);
+  }
+  
+  // 获取主题的显示名称
+  function getThemeDisplayName(themeName) {
+    const themeNames = {
+      'default': '默认',
+      'sepia': '羊皮纸',
+      'night': '夜间',
+      'forest': '森林'
+    };
+    return themeNames[themeName] || themeName;
+  }
+  
+  // 显示主题选择器模态框
+  function showThemeModal() {
+    elements.themeModal.classList.remove('hidden');
+  }
+  
+  // 隐藏主题选择器模态框
+  function hideThemeModal() {
+    elements.themeModal.classList.add('hidden');
+  }
 
 // Initialize the app
 async function initApp() {
+
+  applyTheme(state.theme); // Apply saved theme
   // Apply dark mode if enabled
   if (state.darkMode) {
     document.body.classList.add('dark-mode');
@@ -65,7 +127,7 @@ async function checkServerEnvironment() {
 // Load the book list from JSON
 async function loadBookList() {
   try {
-    const response = await fetch('data/bookList.json');
+    const response = await fetch(`${BASEURL}data/bookList.json`);
     if (!response.ok) {
       throw new Error('Failed to load book list');
     }
@@ -129,7 +191,7 @@ function calculateBookProgress(book, lastPosition) {
 // Open a book by ID
 async function openBook(bookId) {
   try {
-    const response = await fetch(`data/books/${bookId}.json`);
+    const response = await fetch(`${BASEURL}data/books/${bookId}.json`);
     if (!response.ok) {
       throw new Error('Failed to load book');
     }
@@ -362,6 +424,27 @@ function renderChapterContent(content) {
   
   // Add selection listener for text highlighting
   elements.chapterContent.addEventListener('mouseup', handleTextSelection);
+  
+  // Update word count
+  updateWordCount(content);
+}
+
+// Add this new function for word count
+function updateWordCount(content) {
+  if (!content) return;
+  
+  // Count words including Chinese characters (treating each Chinese character as a word)
+  // For non-Chinese text, count traditional space-separated words
+  const chineseCharsCount = (content.match(/[\u4e00-\u9fa5]/g) || []).length;
+  const nonChineseWordsCount = content.replace(/[\u4e00-\u9fa5]/g, '').trim() ? 
+                            content.replace(/[\u4e00-\u9fa5]/g, '').trim().split(/\s+/).length : 0;
+  
+  const wordCount = chineseCharsCount + nonChineseWordsCount;
+  
+  // Display word count if element exists
+  if (elements.wordCount) {
+    elements.wordCount.textContent = `字数: ${wordCount}`;
+  }
 }
 
 // Apply saved underlines to the chapter content
@@ -701,6 +784,29 @@ function setupEventListeners(isServerEnvironment) {
     // Hide the add book button in server environment
     elements.addBookBtn.style.display = 'none';
   }
+
+  // 主题选择器按钮点击事件
+  elements.themeSelector.addEventListener('click', showThemeModal);
+  elements.readerThemeSelector.addEventListener('click', showThemeModal);
+  
+  // 关闭模态框按钮点击事件
+  elements.closeModalBtn.addEventListener('click', hideThemeModal);
+  
+  // 主题选项点击事件
+  elements.themeOptions.forEach(option => {
+    option.addEventListener('click', () => {
+      const themeName = option.dataset.theme;
+      applyTheme(themeName);
+      hideThemeModal();
+    });
+  });
+  
+  // 点击模态框外部关闭模态框
+  elements.themeModal.addEventListener('click', (e) => {
+    if (e.target === elements.themeModal) {
+      hideThemeModal();
+    }
+  });
   
   // Periodically save reading position
   setInterval(saveLastReadPosition, 5000);
@@ -710,6 +816,22 @@ function setupEventListeners(isServerEnvironment) {
     parseURLHash();
   });
 }
+
+// 更新页脚年份和最后更新时间
+document.addEventListener('DOMContentLoaded', () => {
+    const currentYearElement = document.getElementById('currentYear');
+    const lastUpdateTimeElement = document.getElementById('lastUpdateTime');
+    
+    if (currentYearElement) {
+      currentYearElement.textContent = new Date().getFullYear();
+    }
+    
+    if (lastUpdateTimeElement) {
+      lastUpdateTimeElement.textContent = '2025年3月31日';
+    }
+});
+
+
 
 // Initialize the app when page loads
 document.addEventListener('DOMContentLoaded', initApp);
