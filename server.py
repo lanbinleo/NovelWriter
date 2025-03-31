@@ -6,12 +6,22 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 from urllib.parse import parse_qs, urlparse
 
 # Configure the data directories
-DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
-BOOKS_DIR = os.path.join(DATA_DIR, 'books')
+LOCAL_DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
+LOCAL_BOOKS_DIR = os.path.join(LOCAL_DATA_DIR, 'books')
 
-# Ensure data directories exist
-os.makedirs(DATA_DIR, exist_ok=True)
-os.makedirs(BOOKS_DIR, exist_ok=True)
+# GitHub repository data URLs
+GITHUB_DATA_BASE = "https://raw.githubusercontent.com/lanbinleo/NovelWriter/main/data"
+GITHUB_BOOK_LIST = f"{GITHUB_DATA_BASE}/bookList.json"
+GITHUB_BOOKS_DIR = f"{GITHUB_DATA_BASE}/books"
+
+# Ensure local data directories exist
+os.makedirs(LOCAL_DATA_DIR, exist_ok=True)
+os.makedirs(LOCAL_BOOKS_DIR, exist_ok=True)
+
+REMOTE = True
+if REMOTE:
+    DATA_DIR = GITHUB_DATA_BASE
+    BOOKS_DIR = GITHUB_BOOKS_DIR
 
 class NovelWriterHandler(SimpleHTTPRequestHandler):
     def do_GET(self):
@@ -61,7 +71,7 @@ class NovelWriterHandler(SimpleHTTPRequestHandler):
             book_list = json.loads(post_data.decode('utf-8'))
             
             # Save to bookList.json
-            with open(os.path.join(DATA_DIR, 'bookList.json'), 'w', encoding='utf-8') as f:
+            with open(os.path.join(LOCAL_DATA_DIR, 'bookList.json'), 'w', encoding='utf-8') as f:
                 json.dump(book_list, f, ensure_ascii=False, indent=2)
             
             # Send success response
@@ -88,7 +98,7 @@ class NovelWriterHandler(SimpleHTTPRequestHandler):
                 raise ValueError("Book data must contain 'id' and 'title'")
             
             # Save book to JSON file
-            book_path = os.path.join(BOOKS_DIR, f"{book['id']}.json")
+            book_path = os.path.join(LOCAL_BOOKS_DIR, f"{book['id']}.json")
             with open(book_path, 'w', encoding='utf-8') as f:
                 json.dump(book, f, ensure_ascii=False, indent=2)
             
@@ -114,7 +124,7 @@ class NovelWriterHandler(SimpleHTTPRequestHandler):
                 raise ValueError("Missing book ID")
             
             # Delete book file if it exists
-            book_path = os.path.join(BOOKS_DIR, f"{book_id}.json")
+            book_path = os.path.join(LOCAL_BOOKS_DIR, f"{book_id}.json")
             if os.path.exists(book_path):
                 os.remove(book_path)
             
