@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小说阅读器</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <div id="bookshelf" class="view">
+            <div class="header">
+                <h1>我的书架</h1>
+                <div class="actions">
+                    <button id="addBookBtn"><i class="fas fa-plus"></i> 添加书籍</button>
+                    <button id="toggleDarkMode"><i class="fas fa-moon"></i></button>
+                </div>
+            </div>
+            <div id="bookList" class="book-grid"></div>
+        </div>
+        
+        <div id="reader" class="view hidden">
+            <div class="header">
+                <button id="backToShelf"><i class="fas fa-arrow-left"></i> 返回书架</button>
+                <h2 id="bookTitle">书名</h2>
+                <div class="actions">
+                    <button id="addBookmark" title="添加书签"><i class="fas fa-bookmark"></i></button>
+                    <button id="shareBook" title="分享"><i class="fas fa-share-alt"></i></button>
+                    <button id="toggleReaderDarkMode"><i class="fas fa-moon"></i></button>
+                </div>
+            </div>
+            
+            <div class="reader-container">
+                <div class="sidebar">
+                    <h3>目录</h3>
+                    <div id="tableOfContents"></div>
+                    
+                    <h3>书签</h3>
+                    <div id="bookmarksList"></div>
+                </div>
+                
+                <div class="content-area">
+                    <div id="chapterContent" class="chapter-content"></div>
+                    
+                    <div class="navigation-controls">
+                        <button id="prevChapter"><i class="fas fa-chevron-left"></i> 上一章</button>
+                        <span id="chapterTitle">第一章</span>
+                        <button id="nextChapter">下一章 <i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="toastMessage" class="toast hidden"></div>
+    
+    <script src="app.js"></script>
+</body>
+</html>

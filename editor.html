@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小说编辑器</title>
+    <link rel="stylesheet" href="editor.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.3/lib/codemirror.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.3/theme/mdn-like.css">
+    <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.3/lib/codemirror.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.3/mode/markdown/markdown.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <div class="sidebar">
+            <div class="header">
+                <h1>小说编辑器</h1>
+                <button id="backToReaderBtn"><i class="fas fa-book-reader"></i> 返回阅读器</button>
+            </div>
+            
+            <div class="book-list-section">
+                <div class="section-header">
+                    <h2>我的书</h2>
+                    <button id="createBookBtn"><i class="fas fa-plus"></i></button>
+                </div>
+                <div id="bookList" class="list"></div>
+            </div>
+            
+            <div class="chapters-list-section">
+                <div class="section-header">
+                    <h2>章节列表</h2>
+                    <button id="createChapterBtn" disabled><i class="fas fa-plus"></i></button>
+                </div>
+                <div id="chapterList" class="list"></div>
+            </div>
+            
+            <div class="actions">
+                <button id="toggleDarkMode"><i class="fas fa-moon"></i> 夜间模式</button>
+                <button id="exportBookBtn" disabled><i class="fas fa-file-export"></i> 导出书籍</button>
+                <button id="importBookBtn"><i class="fas fa-file-import"></i> 导入书籍</button>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="toolbar">
+                <div class="book-info" id="currentBookInfo">
+                    <span>选择或创建一本书</span>
+                </div>
+                <div class="editor-actions">
+                    <div class="view-toggle">
+                        <button id="editorViewBtn" class="active"><i class="fas fa-edit"></i> 编辑</button>
+                        <button id="previewViewBtn"><i class="fas fa-eye"></i> 预览</button>
+                        <button id="splitViewBtn"><i class="fas fa-columns"></i> 分屏</button>
+                    </div>
+                    <button id="saveBtn" disabled><i class="fas fa-save"></i> 保存</button>
+                </div>
+            </div>
+            
+            <div class="editor-container">
+                <div id="editorPane" class="pane">
+                    <textarea id="editor"></textarea>
+                </div>
+                <div id="previewPane" class="pane hidden">
+                    <div id="preview" class="preview-content"></div>
+                </div>
+            </div>
+            
+            <div class="statusbar">
+                <div id="wordCount">字数: 0</div>
+                <div id="saveStatus">未保存</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 创建书籍对话框 -->
+    <div id="createBookModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>创建新书</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="bookTitle">书名:</label>
+                    <input type="text" id="bookTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="bookAuthor">作者:</label>
+                    <input type="text" id="bookAuthor" required>
+                </div>
+                <div class="form-group">
+                    <label for="bookDesc">简介:</label>
+                    <textarea id="bookDesc" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="bookCover">封面URL:</label>
+                    <input type="text" id="bookCover" placeholder="https://...">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="createBookConfirmBtn">创建</button>
+                <button class="cancel-btn">取消</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 创建章节对话框 -->
+    <div id="createChapterModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>创建新章节</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="chapterTitle">章节标题:</label>
+                    <input type="text" id="chapterTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="chapterDesc">章节概要 (可选):</label>
+                    <textarea id="chapterDesc" rows="2"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="createChapterConfirmBtn">创建</button>
+                <button class="cancel-btn">取消</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="toastMessage" class="toast hidden"></div>
+    
+    <script src="editor.js"></script>
+</body>
+</html>
